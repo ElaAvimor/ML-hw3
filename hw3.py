@@ -366,9 +366,9 @@ class MultiNormalClassDistribution():
         ###########################################################################
         self.full_data = dataset
         self.filtered_data = dataset[dataset[:,-1] == class_value]
-        self.featureData = self.filtered_data[:, :-1]
+        self.featured_data = self.filtered_data[:, :-1]
 
-        self.mean = np.mean(self.featureData, axis = 0)
+        self.mean = np.mean(self.featured_data, axis = 0)
         self.cov = np.cov(self.filtered_data[:,:-1].T)
         ###########################################################################
         #                             END OF YOUR CODE                            #
@@ -524,7 +524,9 @@ class DiscreteNBClassDistribution():
         ###########################################################################
         # TODO: Implement the function.                                           #
         ###########################################################################
-        pass
+        self.full_data = dataset
+        self.filtered_data = dataset[dataset[:,-1] == class_value]
+        self.featured_data = self.filtered_data[:, :-1]
         ###########################################################################
         #                             END OF YOUR CODE                            #
         ###########################################################################
@@ -538,7 +540,7 @@ class DiscreteNBClassDistribution():
         ###########################################################################
         # TODO: Implement the function.                                           #
         ###########################################################################
-        pass
+        prior = self.filtered_data.shape[0] / self.full_data.shape[0]
         ###########################################################################
         #                             END OF YOUR CODE                            #
         ###########################################################################
@@ -553,7 +555,25 @@ class DiscreteNBClassDistribution():
         ###########################################################################
         # TODO: Implement the function.                                           #
         ###########################################################################
-        pass
+        results = []
+        total_instances = self.filtered_data.shape[0]
+
+        for feature_idx, attribute in enumerate(x):
+            feature_column = self.full_data[:, feature_idx]
+            unique_values = np.unique(feature_column)
+
+            if attribute in unique_values:
+                matching_instances = self.filtered_data[:, feature_idx] == attribute
+                count_matching_attributes = np.sum(matching_instances)
+                count_unique_values = len(unique_values)
+                attribute_likelihood = (count_matching_attributes + 1) / (total_instances + count_unique_values)
+                results.append(attribute_likelihood)
+            else:
+                results.append(EPSILLON)
+
+        likelihood = np.prod(results)
+        return likelihood
+      
         ###########################################################################
         #                             END OF YOUR CODE                            #
         ###########################################################################
@@ -569,7 +589,7 @@ class DiscreteNBClassDistribution():
         ###########################################################################
         # TODO: Implement the function.                                           #
         ###########################################################################
-        pass
+        posterior = self.get_instance_likelihood(x) * self.get_prior()
         ###########################################################################
         #                             END OF YOUR CODE                            #
         ###########################################################################
@@ -590,7 +610,8 @@ class MAPClassifier_DNB():
         ###########################################################################
         # TODO: Implement the function.                                           #
         ###########################################################################
-        pass
+        self.ccd0 = ccd0
+        self.ccd1 = ccd1
         ###########################################################################
         #                             END OF YOUR CODE                            #
         ###########################################################################
@@ -608,7 +629,13 @@ class MAPClassifier_DNB():
         ###########################################################################
         # TODO: Implement the function.                                           #
         ###########################################################################
-        pass
+        ccd0_posterior = self.ccd0.get_instance_posterior(x)
+        ccd1_posterior = self.ccd1.get_instance_posterior(x)
+
+        if ccd0_posterior >= ccd1_posterior:
+            pred = 0
+        else:
+            pred = 1
         ###########################################################################
         #                             END OF YOUR CODE                            #
         ###########################################################################
@@ -627,7 +654,14 @@ class MAPClassifier_DNB():
         ###########################################################################
         # TODO: Implement the function.                                           #
         ###########################################################################
-        pass
+        num_correctly_classified = 0
+        test_set_size = test_set.shape[0]
+
+        for instance in test_set:
+            if self.predict(instance[:-1]) == instance[-1]:
+                num_correctly_classified += 1
+
+        acc = num_correctly_classified / test_set_size
         ###########################################################################
         #                             END OF YOUR CODE                            #
         ###########################################################################
