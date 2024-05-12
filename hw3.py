@@ -310,7 +310,15 @@ def compute_accuracy(test_set, map_classifier):
     ###########################################################################
     # TODO: Implement the function.                                           #
     ###########################################################################
-    pass
+    num_correctly_classified = 0
+    test_set_size = test_set.shape[0]
+
+    for instance in test_set:
+        if map_classifier.predict(instance[:-1]) == instance[-1]:
+            num_correctly_classified += 1
+
+    acc = num_correctly_classified / test_set_size
+
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
