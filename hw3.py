@@ -339,7 +339,12 @@ def multi_normal_pdf(x, mean, cov):
     ###########################################################################
     # TODO: Implement the function.                                           #
     ###########################################################################
-    pass
+    dim = mean.shape[0]
+    norm_factor = (2 * np.pi) ** (-dim / 2) * np.linalg.det(cov) ** -0.5
+    deviation = x - mean
+    inv_cov = np.linalg.inv(cov)
+    exponent = -0.5 * np.dot(deviation.T, np.dot(inv_cov, deviation))
+    pdf = norm_factor * np.exp(exponent)
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -359,7 +364,12 @@ class MultiNormalClassDistribution():
         ###########################################################################
         # TODO: Implement the function.                                           #
         ###########################################################################
-        pass
+        self.full_data = dataset
+        self.filtered_data = dataset[dataset[:,-1] == class_value]
+        self.featureData = self.filtered_data[:, :-1]
+
+        self.mean = np.mean(self.featureData, axis = 0)
+        self.cov = np.cov(self.filtered_data[:,:-1].T)
         ###########################################################################
         #                             END OF YOUR CODE                            #
         ###########################################################################
@@ -372,7 +382,8 @@ class MultiNormalClassDistribution():
         ###########################################################################
         # TODO: Implement the function.                                           #
         ###########################################################################
-        pass
+        # prior is p(A)
+        prior = self.filtered_data.shape[0] / self.full_data.shape[0]
         ###########################################################################
         #                             END OF YOUR CODE                            #
         ###########################################################################
@@ -386,7 +397,7 @@ class MultiNormalClassDistribution():
         ###########################################################################
         # TODO: Implement the function.                                           #
         ###########################################################################
-        pass
+        likelihood = multi_normal_pdf(x,self.mean,self.cov)
         ###########################################################################
         #                             END OF YOUR CODE                            #
         ###########################################################################
@@ -401,7 +412,8 @@ class MultiNormalClassDistribution():
         ###########################################################################
         # TODO: Implement the function.                                           #
         ###########################################################################
-        pass
+        # using bayes formula
+        posterior = self.get_instance_likelihood(x) * self.get_prior()
         ###########################################################################
         #                             END OF YOUR CODE                            #
         ###########################################################################
